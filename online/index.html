@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#090b13" />
+  <link rel="icon" href="data:," />
+  <title>尤利快跑</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #090b13;
+      --panel: rgba(16, 21, 32, .72);
+      --paper: #fffbea;
+      --muted: #8f98ab;
+      --lime: #d9ff45;
+      --cyan: #58e7ff;
+      --violet: #955cff;
+      --red: #ff4862;
+      --line: rgba(255,255,255,.12);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    button { font: inherit; }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      padding: clamp(12px, 2.4vw, 28px);
+      overflow-x: hidden;
+      color: var(--paper);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% -10%, rgba(149,92,255,.32), transparent 32%),
+        radial-gradient(circle at 94% 4%, rgba(88,231,255,.16), transparent 27%),
+        linear-gradient(145deg, #121827 0%, var(--ink) 54%, #070910 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    body::before {
+      opacity: .2;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 30px 30px;
+      mask-image: linear-gradient(to bottom, #000, transparent 78%);
+    }
+
+    body::after {
+      opacity: .07;
+      background-image: radial-gradient(circle, #fff 0 1px, transparent 1.5px);
+      background-size: 5px 5px;
+      mix-blend-mode: soft-light;
+    }
+
+    .app {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      min-height: 58px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 2px 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      border: 2px solid var(--paper);
+      border-radius: 13px 6px 13px 6px;
+      transform: rotate(-7deg);
+      background: linear-gradient(135deg, var(--violet), #5631b7);
+      box-shadow: 5px 5px 0 var(--lime), 0 10px 30px rgba(149,92,255,.25);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      left: 9px;
+      right: 9px;
+      height: 4px;
+      border-radius: 99px;
+      background: var(--paper);
+      transform: skewX(-24deg);
+    }
+    .brand-mark::before { top: 12px; }
+    .brand-mark::after { top: 23px; left: 15px; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(23px, 3.2vw, 34px);
+      font-weight: 1000;
+      line-height: 1;
+      letter-spacing: -1.5px;
+      text-shadow: 3px 3px 0 rgba(149,92,255,.9);
+    }
+
+    .sound-button {
+      position: relative;
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.035));
+      color: var(--paper);
+      box-shadow: 0 12px 32px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.13);
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .sound-button::before {
+      content: "";
+      width: 17px;
+      height: 17px;
+      border: 3px solid currentColor;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 4px transparent;
+    }
+
+    .sound-button[data-on="false"] { color: #6f788a; }
+    .sound-button[data-on="false"]::after {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 3px;
+      border-radius: 99px;
+      background: var(--red);
+      transform: rotate(-45deg);
+    }
+
+    .sound-button:hover,
+    .sound-button:focus-visible {
+      transform: translateY(-2px) rotate(-2deg);
+      border-color: rgba(88,231,255,.68);
+      background: rgba(88,231,255,.1);
+      outline: none;
+    }
+
+    .game-shell {
+      position: relative;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(255,255,255,.15), rgba(255,255,255,.025));
+      box-shadow: 0 32px 90px rgba(0,0,0,.52), 0 0 0 1px rgba(255,255,255,.045);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .game-shell::before {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      z-index: 2;
+      border-radius: 17px;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.11), inset 0 -50px 80px rgba(0,0,0,.08);
+    }
+
+    .game-shell::after {
+      content: "";
+      position: absolute;
+      z-index: 3;
+      top: 4px;
+      left: 30px;
+      width: 126px;
+      height: 4px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--lime), var(--cyan), transparent);
+      box-shadow: calc(min(100vw, 1160px) - 205px) calc(100% + 1px) 0 var(--violet);
+      pointer-events: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 17px;
+      background: #82d7ed;
+      touch-action: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .action-button {
+      min-width: 190px;
+      min-height: 56px;
+      padding: 12px 30px;
+      border: 1px solid rgba(255,255,255,.42);
+      border-radius: 17px 8px 17px 8px;
+      background: linear-gradient(135deg, #efff7a, #b9f326 72%);
+      color: #10130b;
+      box-shadow: 0 12px 32px rgba(185,243,38,.2), 0 5px 0 #668c19, inset 0 1px 0 #fff;
+      font-weight: 1000;
+      font-size: 20px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    }
+
+    .action-button::after { content: "  ›"; }
+    .action-button:hover,
+    .action-button:focus-visible {
+      filter: brightness(1.06) saturate(1.08);
+      transform: translateY(-2px) rotate(-1deg);
+      outline: 2px solid rgba(217,255,69,.3);
+      outline-offset: 4px;
+    }
+    .action-button:active {
+      transform: translateY(3px);
+      box-shadow: 0 4px 16px rgba(185,243,38,.15), 0 2px 0 #668c19;
+    }
+
+    .action-button[hidden],
+    .media-bank { display: none; }
+
+    @media (max-width: 720px) {
+      body { padding: 10px 10px 18px; }
+      .topbar { min-height: 48px; margin-bottom: 8px; }
+      .brand { gap: 9px; }
+      .brand-mark { width: 34px; height: 34px; border-radius: 10px 5px 10px 5px; box-shadow: 4px 4px 0 var(--lime); }
+      .brand-mark::before { top: 9px; }
+      .brand-mark::after { top: 19px; }
+      h1 { font-size: 23px; text-shadow: 2px 2px 0 var(--violet); }
+      .sound-button { width: 41px; height: 41px; border-radius: 13px; }
+      .game-shell { padding: 4px; border-radius: 16px; }
+      .game-shell::before { inset: 4px; border-radius: 12px; }
+      canvas { border-radius: 12px; }
+      .controls { margin-top: 12px; }
+      .action-button { width: 100%; min-height: 56px; border-radius: 16px 7px 16px 7px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand" aria-label="尤利快跑">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>尤利快跑</h1>
+      </div>
+      <button id="soundButton" class="sound-button" type="button" data-on="true" aria-label="关闭声音" title="声音"></button>
+    </header>
+
+    <section class="game-shell" aria-label="尤利快跑游戏区">
+      <canvas id="gameCanvas" width="960" height="540" aria-label="尤利快跑游戏区"></canvas>
+    </section>
+
+    <div class="controls">
+      <button id="actionButton" class="action-button" type="button">开跑</button>
+    </div>
+
+    <div class="media-bank" aria-hidden="true">
+      <video id="redUltimateVideo" preload="auto" playsinline></video>
+      <video id="juliusUltimateVideo" preload="auto" playsinline></video>
+    </div>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
